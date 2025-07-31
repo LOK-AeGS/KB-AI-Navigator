@@ -1,0 +1,260 @@
+<!-- templates/results.html -->
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>경제 상담 결과</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .page-header h2 {
+            font-size: 1.8em;
+            color: #343a40;
+        }
+
+        .user-info {
+            font-size: 1em;
+            color: #6c757d;
+        }
+
+        .card {
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            padding: 30px;
+            margin-bottom: 25px;
+        }
+
+        .card h3 {
+            font-size: 1.4em;
+            color: #495057;
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+
+        /* 상담 요약 */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+
+        .summary-item {
+            text-align: center;
+        }
+
+        .summary-item .label {
+            font-size: 0.9em;
+            color: #6c757d;
+            margin-bottom: 5px;
+        }
+
+        .summary-item .value {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #343a40;
+        }
+
+        /* 생애주기 계획 */
+        .timeline {
+            position: relative;
+            padding-left: 30px;
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-bottom: 20px;
+            border-left: 2px solid #e9ecef;
+        }
+
+        .timeline-item:last-child {
+            border-left: none;
+        }
+
+        .timeline-icon {
+            position: absolute;
+            left: -11px;
+            top: 0;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: #e9ecef;
+        }
+
+        .timeline-item.active .timeline-icon {
+            background-color: #007bff;
+        }
+
+        .timeline-content {
+            padding-left: 20px;
+        }
+
+        .timeline-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .timeline-header h4 {
+            margin: 0;
+            font-size: 1.2em;
+        }
+
+        .timeline-header .status {
+            margin-left: 10px;
+            font-size: 0.8em;
+            padding: 3px 8px;
+            border-radius: 12px;
+            color: #fff;
+        }
+
+        .status-completed {
+            background-color: #6c757d;
+        }
+
+        .status-inprogress {
+            background-color: #28a745;
+        }
+
+        .status-planned {
+            background-color: #007bff;
+        }
+
+        .timeline-tasks li {
+            margin-bottom: 5px;
+            color: #495057;
+        }
+
+        .milestone-note {
+            background-color: #e7f1ff;
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 15px;
+            font-size: 0.9em;
+            color: #0056b3;
+        }
+
+        /* 맞춤 기사 */
+        .article-list .article-item {
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+
+        .article-item h4 {
+            margin: 0 0 10px 0;
+            font-size: 1.2em;
+        }
+
+        .article-item p {
+            margin: 0;
+            color: #6c757d;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="page-header">
+            <h2>경제 상담 결과</h2>
+            <span class="user-info">{{ user_profile.age }}세 • {{ user_profile.occupation }} • {{ user_profile.residence
+                }}</span>
+        </div>
+
+        <!-- 상담 요약 -->
+        <div class="card">
+            <h3>상담 요약</h3>
+            <div class="summary-grid">
+                <div class="summary-item">
+                    <div class="label">투자 성향</div>
+                    <div class="value">{{ user_profile.investment_style }}</div>
+                </div>
+                <div class="summary-item">
+                    <div class="label">월 수익</div>
+                    <div class="value">{{ user_profile.monthly_income }}만원</div>
+                </div>
+                <div class="summary-item">
+                    <div class="label">부양가족</div>
+                    <div class="value">{{ user_profile.dependents }}명</div>
+                </div>
+                <div class="summary-item">
+                    <div class="label">목표</div>
+                    <div class="value">{{ user_profile.financial_goal }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 생애주기별 경제 계획 -->
+        <div class="card">
+            <h3>생애주기별 경제 계획</h3>
+            <div class="timeline">
+                {% for plan in lifecycle_plans %}
+                <div class="timeline-item {% if plan.status == '진행중' %}active{% endif %}">
+                    <div class="timeline-icon"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-header">
+                            <h4>{{ plan.age_group }}</h4>
+                            <span class="status 
+                                {% if plan.status == '완료' %}status-completed
+                                {% elif plan.status == '진행중' %}status-inprogress
+                                {% else %}status-planned{% endif %}">{{ plan.status }}</span>
+                        </div>
+                        <ul class="timeline-tasks">
+                            {% for task in plan.tasks %}
+                            <li>{{ task }}</li>
+                            {% endfor %}
+                        </ul>
+                        {% if plan.milestone_age %}
+                        <div class="milestone-note">💡 {{ plan.milestone_age }}에 집중해야 할 핵심 과제들입니다.</div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- 현재 단계 맞춤 투자 가이드 -->
+        <div class="card">
+            <h3>현재 단계 맞춤 투자 가이드</h3>
+            <p>이 섹션은 준비 중입니다.</p>
+        </div>
+
+        <!-- 맞춤 경제 기사 요약 -->
+        <div class="card">
+            <h3>맞춤 경제 기사 요약</h3>
+            <div class="article-list">
+                {% for article in personalized_articles %}
+                <div class="article-item">
+                    <h4>{{ article.title }}</h4>
+                    <p>{{ article.summary }}</p>
+                </div>
+                {% else %}
+                <p>현재 페르소나에 맞는 맞춤 기사가 없습니다.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
