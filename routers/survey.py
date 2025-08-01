@@ -5,6 +5,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel, Field
 from pymongo.database import Database
+from typing import List # List 타입을 사용하기 위해 import
 
 # --- Pydantic 모델 정의 (수정됨) ---
 class UserProfile(BaseModel):
@@ -15,7 +16,7 @@ class UserProfile(BaseModel):
     monthly_income: int
     dependents: int
     investment_style: str
-    financial_goal: str # 경제 목표 필드 추가
+    financial_goal: List[str] # 경제 목표를 문자열 리스트로 받도록 변경
 
 # APIRouter 인스턴스 생성
 router = APIRouter()
@@ -42,7 +43,7 @@ async def submit_survey_form(
     monthly_income: int = Form(...),
     dependents: int = Form(...),
     investment_style: str = Form(...),
-    financial_goal: str = Form(...), # 폼에서 경제 목표 데이터 받기
+    financial_goal: List[str] = Form(...), # 폼에서 여러 개의 목표 데이터를 리스트로 받기
     db: Database = Depends(get_db)
 ):
     user_profile = UserProfile(
@@ -60,12 +61,6 @@ async def submit_survey_form(
     
     print("--- 👤 새로운 사용자 프로필 MongoDB에 저장됨 ---")
     print(f"저장된 Document ID: {result.inserted_id}")
-    print("---------------------------------------------")
 
     # 결과 페이지로 리디렉션
     return RedirectResponse(url="/results", status_code=303)
-
-@router.get("/success", response_class=HTMLResponse, tags=["Survey UI"])
-async def show_success_page(request: Request):
-    # 이 페이지는 이제 직접 사용되지 않지만, 호환성을 위해 남겨둡니다.
-    return templates.TemplateResponse("success.html", {"request": request})

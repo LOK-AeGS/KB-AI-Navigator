@@ -82,7 +82,8 @@
             color: #495057;
         }
 
-        .form-group input,
+        .form-group input[type="number"],
+        .form-group input[type="text"],
         .form-group select,
         .form-group textarea {
             width: 100%;
@@ -91,11 +92,70 @@
             border-radius: 8px;
             box-sizing: border-box;
             font-size: 1em;
+            background-color: #f8f9fa;
         }
 
-        .radio-group label {
-            margin-right: 20px;
-            font-weight: normal;
+        /* --- 라디오 버튼 스타일 수정 --- */
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .radio-label {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            padding: 12px;
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+
+        .radio-label:hover {
+            background-color: #f1f3f5;
+        }
+
+        .radio-label input[type="radio"] {
+            margin-right: 10px;
+        }
+
+        input[type="radio"]:checked+span {
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        /* --- 경제 목표 선택 카드 스타일 (Checkbox) --- */
+        .goal-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .goal-card {
+            position: relative;
+        }
+
+        .goal-card input[type="checkbox"] {
+            position: absolute;
+            opacity: 0;
+        }
+
+        .goal-card label {
+            display: block;
+            text-align: center;
+            padding: 20px;
+            border: 2px solid #ced4da;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .goal-card input[type="checkbox"]:checked+label {
+            border-color: #007bff;
+            background-color: #e7f1ff;
+            color: #0056b3;
+            font-weight: bold;
         }
 
         .navigation-buttons {
@@ -114,8 +174,8 @@
         }
 
         .prev-btn {
-            background-color: #6c757d;
-            color: white;
+            background-color: #f1f3f5;
+            color: #495057;
         }
 
         .next-btn,
@@ -142,13 +202,24 @@
                 <div class="form-group"><label for="age">나이</label><input type="number" id="age" name="age"
                         placeholder="예: 30" required></div>
                 <div class="form-group"><label>성별</label>
-                    <div class="radio-group"><label><input type="radio" name="gender" value="남성" required>
-                            남성</label><label><input type="radio" name="gender" value="여성" required> 여성</label></div>
+                    <div class="radio-group"><label class="radio-label"><input type="radio" name="gender" value="남성"
+                                required><span>남성</span></label><label class="radio-label"><input type="radio"
+                                name="gender" value="여성" required><span>여성</span></label></div>
                 </div>
                 <div class="form-group"><label for="occupation">직업</label><input type="text" id="occupation"
                         name="occupation" placeholder="예: 회사원, 자영업, 프리랜서 등" required></div>
-                <div class="form-group"><label for="residence">거주지</label><input type="text" id="residence"
-                        name="residence" placeholder="거주지를 선택하세요" required></div>
+                <div class="form-group"><label for="residence">거주지</label>
+                    <select id="residence" name="residence" required>
+                        <option value="">거주지를 선택하세요</option>
+                        <option value="서울">서울</option>
+                        <option value="경기/인천">경기/인천</option>
+                        <option value="강원">강원</option>
+                        <option value="충청">충청</option>
+                        <option value="전라">전라</option>
+                        <option value="경상">경상</option>
+                        <option value="제주">제주</option>
+                    </select>
+                </div>
                 <div class="navigation-buttons" style="justify-content: flex-end;"><button type="button"
                         class="nav-btn next-btn">다음</button></div>
             </div>
@@ -157,22 +228,45 @@
                 <h2>개인 맞춤형 경제 상담 (2/3단계)</h2>
                 <div class="form-group"><label for="monthly_income">월 수익 (만원)</label><input type="number"
                         id="monthly_income" name="monthly_income" placeholder="예: 300" required></div>
-                <div class="form-group"><label for="dependents">부양가족 수</label><input type="number" id="dependents"
-                        name="dependents" placeholder="부양가족 수를 선택하세요" required></div>
+                <div class="form-group"><label for="dependents">부양가족 수 (본인 제외)</label>
+                    <select id="dependents" name="dependents" required>
+                        <option value="">부양가족 수를 선택하세요</option>
+                        <option value="0">0명</option>
+                        <option value="1">1명</option>
+                        <option value="2">2명</option>
+                        <option value="3">3명 이상</option>
+                    </select>
+                </div>
                 <div class="form-group"><label>투자 성향</label>
-                    <div class="radio-group"><label><input type="radio" name="investment_style" value="안정형" required>
-                            안정형</label><label><input type="radio" name="investment_style" value="중립형" required>
-                            중립형</label><label><input type="radio" name="investment_style" value="공격형" required>
-                            공격형</label></div>
+                    <div class="radio-group"><label class="radio-label"><input type="radio" name="investment_style"
+                                value="안정형" required><span>안정형 (원금 보존 추구)</span></label><label
+                            class="radio-label"><input type="radio" name="investment_style" value="중립형"
+                                required><span>중립형 (안정성과 수익성 균형)</span></label><label class="radio-label"><input
+                                type="radio" name="investment_style" value="공격형" required><span>공격형 (고위험 고수익
+                                추구)</span></label></div>
                 </div>
                 <div class="navigation-buttons"><button type="button" class="nav-btn prev-btn">이전</button><button
                         type="button" class="nav-btn next-btn">다음</button></div>
             </div>
-            <!-- Step 3: 경제 목표 -->
+            <!-- Step 3: 경제 목표 (Checkbox로 변경) -->
             <div class="form-step">
                 <h2>개인 맞춤형 경제 상담 (3/3단계)</h2>
-                <div class="form-group"><label for="financial_goal">경제 목표</label><textarea id="financial_goal"
-                        name="financial_goal" rows="4" placeholder="이루고 싶은 경제 목표 (예: 5년 내 내집마련)" required></textarea>
+                <div class="form-group">
+                    <label>이루고 싶은 경제 목표 (중복 선택 가능)</label>
+                    <div class="goal-cards">
+                        <div class="goal-card"><input type="checkbox" id="goal1" name="financial_goal"
+                                value="5년 내 내집마련"><label for="goal1">5년 내 내집마련</label></div>
+                        <div class="goal-card"><input type="checkbox" id="goal2" name="financial_goal"
+                                value="1억 종잣돈 모으기"><label for="goal2">1억 종잣돈 모으기</label></div>
+                        <div class="goal-card"><input type="checkbox" id="goal3" name="financial_goal"
+                                value="자녀 교육자금 준비"><label for="goal3">자녀 교육자금 준비</label></div>
+                        <div class="goal-card"><input type="checkbox" id="goal4" name="financial_goal"
+                                value="안정적인 노후 준비"><label for="goal4">안정적인 노후 준비</label></div>
+                        <div class="goal-card"><input type="checkbox" id="goal5" name="financial_goal"
+                                value="경제적 자유 달성"><label for="goal5">경제적 자유 달성</label></div>
+                        <div class="goal-card"><input type="checkbox" id="goal6" name="financial_goal"
+                                value="자동차 구매"><label for="goal6">자동차 구매</label></div>
+                    </div>
                 </div>
                 <div class="navigation-buttons"><button type="button" class="nav-btn prev-btn">이전</button><button
                         type="submit" class="nav-btn submit-btn">분석 완료</button></div>
@@ -181,6 +275,7 @@
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('surveyForm');
             const formSteps = document.querySelectorAll('.form-step');
             const nextBtns = document.querySelectorAll('.next-btn');
             const prevBtns = document.querySelectorAll('.prev-btn');
@@ -210,6 +305,15 @@
                         updateFormStep();
                     }
                 });
+            });
+
+            // 마지막 단계에서 '분석 완료' 버튼 클릭 시, 최소 1개 이상 목표가 선택되었는지 확인
+            form.addEventListener('submit', (e) => {
+                const goalCheckboxes = document.querySelectorAll('input[name="financial_goal"]:checked');
+                if (goalCheckboxes.length === 0) {
+                    e.preventDefault(); // 폼 제출을 막음
+                    alert('경제 목표를 1개 이상 선택해주세요.');
+                }
             });
         });
     </script>
