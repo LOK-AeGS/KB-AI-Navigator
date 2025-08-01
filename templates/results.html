@@ -31,9 +31,25 @@
             color: #343a40;
         }
 
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
         .user-info {
             font-size: 1em;
             color: #6c757d;
+        }
+
+        .edit-btn {
+            text-decoration: none;
+            background-color: #f1f3f5;
+            color: #495057;
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9em;
         }
 
         .card {
@@ -58,7 +74,6 @@
             margin-bottom: 25px;
         }
 
-        /* 상담 요약 */
         .summary-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -81,7 +96,6 @@
             color: #343a40;
         }
 
-        /* 생애주기 계획 */
         .timeline {
             position: relative;
             padding-left: 30px;
@@ -160,7 +174,6 @@
             color: #0056b3;
         }
 
-        /* 맞춤 기사 (UI 수정) */
         .article-list .article-item {
             background-color: #fff;
             border: 1px solid #e9ecef;
@@ -190,14 +203,17 @@
 </head>
 
 <body>
+    {% include 'header.html' %}
     <div class="container">
         <div class="page-header">
             <h2>경제 상담 결과</h2>
-            <span class="user-info">{{ user_profile.age }}세 • {{ user_profile.occupation }} • {{ user_profile.residence
-                }}</span>
+            <div class="header-right">
+                <a href="/survey/edit" class="edit-btn">다시 입력</a>
+                <span class="user-info">{{ user_profile.age }}세 • {{ user_profile.occupation }} • {{
+                    user_profile.residence }}</span>
+            </div>
         </div>
-
-        <!-- 상담 요약 -->
+        <!-- 이하 내용은 동일 -->
         <div class="card">
             <h3>상담 요약</h3>
             <div class="summary-grid">
@@ -215,12 +231,10 @@
                 </div>
                 <div class="summary-item">
                     <div class="label">목표</div>
-                    <div class="value">{{ user_profile.financial_goal }}</div>
+                    <div class="value">{{ user_profile.financial_goal | join(', ') }}</div>
                 </div>
             </div>
         </div>
-
-        <!-- 생애주기별 경제 계획 -->
         <div class="card">
             <h3>생애주기별 경제 계획</h3>
             <div class="timeline">
@@ -230,10 +244,9 @@
                     <div class="timeline-content">
                         <div class="timeline-header">
                             <h4>{{ plan.age_group }}</h4>
-                            <span class="status 
-                                {% if plan.status == '완료' %}status-completed
-                                {% elif plan.status == '진행중' %}status-inprogress
-                                {% else %}status-planned{% endif %}">{{ plan.status }}</span>
+                            <span
+                                class="status {% if plan.status == '완료' %}status-completed{% elif plan.status == '진행중' %}status-inprogress{% else %}status-planned{% endif %}">{{
+                                plan.status }}</span>
                         </div>
                         <ul class="timeline-tasks">
                             {% for task in plan.tasks %}
@@ -248,14 +261,10 @@
                 {% endfor %}
             </div>
         </div>
-
-        <!-- 현재 단계 맞춤 투자 가이드 -->
         <div class="card">
             <h3>현재 단계 맞춤 투자 가이드</h3>
             <p>이 섹션은 준비 중입니다.</p>
         </div>
-
-        <!-- 맞춤 경제 기사 요약 (UI 수정) -->
         <div class="card">
             <h3>맞춤 경제 기사 요약</h3>
             <p class="card-subtitle">회원님의 프로필을 바탕으로 선별된 경제 뉴스입니다.</p>

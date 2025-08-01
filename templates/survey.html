@@ -84,8 +84,7 @@
 
         .form-group input[type="number"],
         .form-group input[type="text"],
-        .form-group select,
-        .form-group textarea {
+        .form-group select {
             width: 100%;
             padding: 12px;
             border: 1px solid #ced4da;
@@ -95,7 +94,6 @@
             background-color: #f8f9fa;
         }
 
-        /* --- 라디오 버튼 스타일 수정 --- */
         .radio-group {
             display: flex;
             flex-direction: column;
@@ -125,7 +123,6 @@
             color: #007bff;
         }
 
-        /* --- 경제 목표 선택 카드 스타일 (Checkbox) --- */
         .goal-cards {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -183,10 +180,19 @@
             background-color: #007bff;
             color: white;
         }
+
+        .validation-message {
+            color: #dc3545;
+            font-size: 0.9em;
+            margin-top: 15px;
+            text-align: center;
+            display: none;
+        }
     </style>
 </head>
 
 <body>
+    {% include 'header.html' %}
     <div class="main-header">
         <h1>💰 개인 맞춤형 경제 상담</h1>
         <p>나만의 경제 목표를 달성하기 위한 맞춤형 계획을 받아보세요</p>
@@ -220,6 +226,7 @@
                         <option value="제주">제주</option>
                     </select>
                 </div>
+                <div class="validation-message">모든 항목을 입력해주세요.</div>
                 <div class="navigation-buttons" style="justify-content: flex-end;"><button type="button"
                         class="nav-btn next-btn">다음</button></div>
             </div>
@@ -245,10 +252,11 @@
                                 type="radio" name="investment_style" value="공격형" required><span>공격형 (고위험 고수익
                                 추구)</span></label></div>
                 </div>
+                <div class="validation-message">모든 항목을 입력해주세요.</div>
                 <div class="navigation-buttons"><button type="button" class="nav-btn prev-btn">이전</button><button
                         type="button" class="nav-btn next-btn">다음</button></div>
             </div>
-            <!-- Step 3: 경제 목표 (Checkbox로 변경) -->
+            <!-- Step 3: 경제 목표 -->
             <div class="form-step">
                 <h2>개인 맞춤형 경제 상담 (3/3단계)</h2>
                 <div class="form-group">
@@ -268,11 +276,14 @@
                                 value="자동차 구매"><label for="goal6">자동차 구매</label></div>
                     </div>
                 </div>
+                <div class="validation-message">경제 목표를 1개 이상 선택해주세요.</div>
                 <div class="navigation-buttons"><button type="button" class="nav-btn prev-btn">이전</button><button
                         type="submit" class="nav-btn submit-btn">분석 완료</button></div>
             </div>
         </form>
     </div>
+    <!-- 백엔드에서 전달된 데이터를 저장하기 위한 스크립트 태그 -->
+    <script id="user-profile-data" type="application/json">{{ user_profile_json | safe }}</script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const form = document.getElementById('surveyForm');
@@ -289,8 +300,49 @@
                 progress.style.width = `${((currentStep + 1) / formSteps.length) * 100}%`;
             };
 
+            // --- 폼 데이터 채우기 함수 ---
+            const populateForm = (data) => {
+                if (!data) return;
+                document.getElementById('age').value = data.age || '';
+                document.getElementById('occupation').value = data.occupation || '';
+                document.getElementById('monthly_income').value = data.monthly_income || '';
+                document.getElementById('residence').value = data.residence || '';
+                document.getElementById('dependents').value = data.dependents; // 0도 유효한 값이므로 || '' 제거
+
+                if (data.gender) document.querySelector(`input[name="gender"][value="${data.gender}"]`).checked = true;
+                if (data.investment_style) document.querySelector(`input[name="investment_style"][value="${data.investment_style}"]`).checked = true;
+
+                if (data.financial_goal && Array.isArray(data.financial_goal)) {
+                    data.financial_goal.forEach(goal => {
+                        const checkbox = document.querySelector(`input[name="financial_goal"][value="${goal}"]`);
+                        if (checkbox) checkbox.checked = true;
+                    });
+                }
+            };
+
+            // --- 유효성 검사 함수 ---
+            const validateStep = (stepIndex) => {
+                const currentStepElement = formSteps[stepIndex];
+                const inputs = currentStepElement.querySelectorAll('input[required], select[required]');
+                let isValid = true;
+                inputs.forEach(input => {
+                    if (input.type === 'radio') {
+                        if (!currentStepElement.querySelector(`input[name="${input.name}"]:checked`)) isValid = false;
+                    } else {
+                        if (!input.value) isValid = false;
+                    }
+                });
+                return isValid;
+            };
+
             nextBtns.forEach(btn => {
                 btn.addEventListener('click', () => {
+                    const messageDiv = formSteps[currentStep].querySelector('.validation-message');
+                    if (!validateStep(currentStep)) {
+                        messageDiv.style.display = 'block';
+                        return;
+                    }
+                    messageDiv.style.display = 'none';
                     if (currentStep < formSteps.length - 1) {
                         currentStep++;
                         updateFormStep();
@@ -307,14 +359,27 @@
                 });
             });
 
-            // 마지막 단계에서 '분석 완료' 버튼 클릭 시, 최소 1개 이상 목표가 선택되었는지 확인
             form.addEventListener('submit', (e) => {
+                const messageDiv = formSteps[currentStep].querySelector('.validation-message');
                 const goalCheckboxes = document.querySelectorAll('input[name="financial_goal"]:checked');
                 if (goalCheckboxes.length === 0) {
-                    e.preventDefault(); // 폼 제출을 막음
-                    alert('경제 목표를 1개 이상 선택해주세요.');
+                    e.preventDefault();
+                    messageDiv.style.display = 'block';
+                } else {
+                    messageDiv.style.display = 'none';
                 }
             });
+
+            // --- 페이지 로드 시 데이터 채우기 실행 ---
+            const userProfileDataEl = document.getElementById('user-profile-data');
+            if (userProfileDataEl && userProfileDataEl.textContent) {
+                try {
+                    const userProfile = JSON.parse(userProfileDataEl.textContent);
+                    populateForm(userProfile);
+                } catch (e) {
+                    console.error("Error parsing user profile data:", e);
+                }
+            }
         });
     </script>
 </body>

@@ -1,0 +1,50 @@
+<!-- templates/header.html -->
+<style>
+    .navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 20px;
+        background-color: #fff;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        margin-bottom: 20px;
+    }
+
+    .navbar-brand {
+        font-weight: bold;
+        font-size: 1.2em;
+        text-decoration: none;
+        color: #333;
+    }
+
+    .nav-links {
+        display: flex;
+        align-items: center;
+    }
+
+    .nav-links a {
+        margin-left: 20px;
+        text-decoration: none;
+        color: #555;
+        font-weight: 500;
+    }
+
+    .nav-links .user-email {
+        font-weight: bold;
+        color: #007bff;
+        margin-left: 20px;
+    }
+</style>
+<header class="navbar">
+    <a href="/" class="navbar-brand">💰 KB AI Navigator</a>
+    <div class="nav-links">
+        {% if current_user %}
+        <span class="user-email">{{ current_user }}</span>
+        <a href="/results">내 결과 보기</a>
+        <a href="/logout">로그아웃</a>
+        {% else %}
+        <a href="/login">로그인</a>
+        <a href="/register">회원가입</a>
+        {% endif %}
+    </div>
+</header>
