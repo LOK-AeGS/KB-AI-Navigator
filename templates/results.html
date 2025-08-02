@@ -50,6 +50,12 @@
             border-radius: 8px;
             font-weight: 600;
             font-size: 0.9em;
+            border: 1px solid #dee2e6;
+            transition: background-color 0.2s;
+        }
+
+        .edit-btn:hover {
+            background-color: #e9ecef;
         }
 
         .card {
@@ -213,7 +219,7 @@
                     user_profile.residence }}</span>
             </div>
         </div>
-        <!-- 이하 내용은 동일 -->
+
         <div class="card">
             <h3>상담 요약</h3>
             <div class="summary-grid">
@@ -235,6 +241,7 @@
                 </div>
             </div>
         </div>
+
         <div class="card">
             <h3>생애주기별 경제 계획</h3>
             <div class="timeline">
@@ -244,9 +251,10 @@
                     <div class="timeline-content">
                         <div class="timeline-header">
                             <h4>{{ plan.age_group }}</h4>
-                            <span
-                                class="status {% if plan.status == '완료' %}status-completed{% elif plan.status == '진행중' %}status-inprogress{% else %}status-planned{% endif %}">{{
-                                plan.status }}</span>
+                            <span class="status 
+                                {% if plan.status == '완료' %}status-completed
+                                {% elif plan.status == '진행중' %}status-inprogress
+                                {% else %}status-planned{% endif %}">{{ plan.status }}</span>
                         </div>
                         <ul class="timeline-tasks">
                             {% for task in plan.tasks %}
@@ -261,10 +269,12 @@
                 {% endfor %}
             </div>
         </div>
+
         <div class="card">
             <h3>현재 단계 맞춤 투자 가이드</h3>
             <p>이 섹션은 준비 중입니다.</p>
         </div>
+
         <div class="card">
             <h3>맞춤 경제 기사 요약</h3>
             <p class="card-subtitle">회원님의 프로필을 바탕으로 선별된 경제 뉴스입니다.</p>

@@ -11,10 +11,7 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
             background-color: #f8f9fa;
             margin: 0;
-            padding: 40px 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            padding: 20px;
         }
 
         .main-header {
@@ -39,6 +36,7 @@
             max-width: 700px;
             width: 100%;
             padding: 40px;
+            margin: 0 auto;
         }
 
         .progress-bar {
@@ -282,8 +280,10 @@
             </div>
         </form>
     </div>
+
     <!-- 백엔드에서 전달된 데이터를 저장하기 위한 스크립트 태그 -->
     <script id="user-profile-data" type="application/json">{{ user_profile_json | safe }}</script>
+
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const form = document.getElementById('surveyForm');
@@ -300,14 +300,13 @@
                 progress.style.width = `${((currentStep + 1) / formSteps.length) * 100}%`;
             };
 
-            // --- 폼 데이터 채우기 함수 ---
             const populateForm = (data) => {
                 if (!data) return;
                 document.getElementById('age').value = data.age || '';
                 document.getElementById('occupation').value = data.occupation || '';
                 document.getElementById('monthly_income').value = data.monthly_income || '';
                 document.getElementById('residence').value = data.residence || '';
-                document.getElementById('dependents').value = data.dependents; // 0도 유효한 값이므로 || '' 제거
+                document.getElementById('dependents').value = data.dependents;
 
                 if (data.gender) document.querySelector(`input[name="gender"][value="${data.gender}"]`).checked = true;
                 if (data.investment_style) document.querySelector(`input[name="investment_style"][value="${data.investment_style}"]`).checked = true;
@@ -320,7 +319,6 @@
                 }
             };
 
-            // --- 유효성 검사 함수 ---
             const validateStep = (stepIndex) => {
                 const currentStepElement = formSteps[stepIndex];
                 const inputs = currentStepElement.querySelectorAll('input[required], select[required]');
@@ -370,14 +368,16 @@
                 }
             });
 
-            // --- 페이지 로드 시 데이터 채우기 실행 ---
             const userProfileDataEl = document.getElementById('user-profile-data');
-            if (userProfileDataEl && userProfileDataEl.textContent) {
-                try {
-                    const userProfile = JSON.parse(userProfileDataEl.textContent);
-                    populateForm(userProfile);
-                } catch (e) {
-                    console.error("Error parsing user profile data:", e);
+            if (userProfileDataEl) {
+                const jsonData = userProfileDataEl.textContent.trim();
+                if (jsonData && jsonData !== 'null' && jsonData.startsWith('{')) {
+                    try {
+                        const userProfile = JSON.parse(jsonData);
+                        populateForm(userProfile);
+                    } catch (e) {
+                        console.error("Error parsing user profile data:", e);
+                    }
                 }
             }
         });
