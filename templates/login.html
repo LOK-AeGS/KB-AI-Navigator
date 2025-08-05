@@ -70,6 +70,29 @@
             text-align: center;
             margin-top: 20px;
         }
+
+        .divider {
+            text-align: center;
+            margin: 20px 0;
+            color: #aaa;
+            font-size: 0.9em;
+        }
+
+        .kakao-btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background-color: #FEE500;
+            color: #191919;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            text-align: center;
+            text-decoration: none;
+            box-sizing: border-box;
+            font-weight: 600;
+        }
     </style>
 </head>
 
@@ -90,6 +113,8 @@
             </div>
             <button type="submit">로그인</button>
         </form>
+        <div class="divider">또는</div>
+        <a href="/login/kakao" class="kakao-btn">카카오로 로그인</a>
         <div class="switch-form">
             <p>계정이 없으신가요? <a href="/register">회원가입</a></p>
         </div>
