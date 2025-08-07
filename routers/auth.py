@@ -102,7 +102,8 @@ async def kakao_auth_callback(code: str, db: Database = Depends(get_db)):
         
         email = user_info_json.get("kakao_account").get("email")
         if not email:
-            raise Exception("카카오 계정에서 이메일 정보를 가져올 수 없습니다.")
+            # 사용자가 이메일 제공에 동의하지 않은 경우
+            return RedirectResponse(url="/login?error=kakao_email_required")
 
         # 3. 사용자 DB 처리
         user = db.users.find_one({"email": email})
@@ -112,6 +113,7 @@ async def kakao_auth_callback(code: str, db: Database = Depends(get_db)):
                 "email": email,
                 "signup_method": "kakao",
                 "kakao_access_token": kakao_access_token
+                # refresh_token도 함께 저장하여 토큰 만료 시 갱신에 사용하면 더 좋습니다.
             })
         else:
             # 기존 사용자이면 카카오 토큰 정보 업데이트
