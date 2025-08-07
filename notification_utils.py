@@ -13,18 +13,19 @@ BASE_URL = "http://www.lifefinance.asia"
 # --- 카카오톡 메시지 발송 함수 ---
 def send_kakao_message(access_token: str, user_name: str):
     """지정된 사용자의 Access Token을 사용하여 카카오톡 메시지를 보냅니다."""
-    url = "https://kapi.kakao.com/v2/api/talk/memo/default/send"
+    url = "https://kapi.kakao.com/v2/api/talk/memo/default/send" # 기본 메시지 URL로 변경
     headers = {"Authorization": f"Bearer {access_token}"}
     
     # 결과 페이지 링크
     results_link = f"{BASE_URL}/results"
     
-    # 메시지 템플릿: 사용자 이름을 포함하여 개인화
+    # 메시지 템플릿을 'feed' (피드) 타입으로 변경합니다.
+    # 이메일과 유사한 형태로 제목, 설명, 이미지, 버튼을 직접 구성할 수 있습니다.
     template = {
         "object_type": "feed",
         "content": {
             "title": f"📈 {user_name}님, 새로운 맞춤 리포트가 도착했어요!",
-            "description": "최신 경제 뉴스를 바탕으로 회원님만을 위한 분석이 업데이트되었습니다.",
+            "description": "최신 경제 뉴스를 바탕으로 회원님만을 위한 분석이 업데이트되었습니다. 아래 버튼을 클릭하여 지금 바로 확인해보세요.",
             "image_url": "https://i.imgur.com/8i7b2dC.png", # 대표 이미지 URL
             "link": {
                 "web_url": results_link,
@@ -33,7 +34,7 @@ def send_kakao_message(access_token: str, user_name: str):
         },
         "buttons": [
             {
-                "title": "지금 바로 확인하기",
+                "title": "내 리포트 확인하기",
                 "link": {
                     "web_url": results_link,
                     "mobile_web_url": results_link
@@ -42,12 +43,13 @@ def send_kakao_message(access_token: str, user_name: str):
         ]
     }
     
+    # API 요청 시 template_object를 JSON 문자열로 변환하여 전달
     response = requests.post(url, headers=headers, data={"template_object": json.dumps(template)})
     
     if response.json().get('result_code') == 0:
-        print(f"✅ 카카오톡 알림 발송 성공: {user_name}님")
+        print(f"✅ 카카오톡 피드 메시지 발송 성공: {user_name}님")
     else:
-        print(f"❌ 카카오톡 알림 발송 실패: {user_name}님, 응답: {response.text}")
+        print(f"❌ 카카오톡 피드 메시지 발송 실패: {user_name}님, 응답: {response.text}")
 
 # --- 이메일 발송 함수 ---
 def send_email_notification(recipient_email: str, user_name: str):
