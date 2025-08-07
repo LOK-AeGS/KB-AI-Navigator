@@ -6,11 +6,18 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
+# --- 서비스의 기본 URL 설정 ---
+# 실제 운영 도메인 주소를 변수로 관리하여 쉽게 변경할 수 있도록 합니다.
+BASE_URL = "http://www.lifefinance.asia"
+
 # --- 카카오톡 메시지 발송 함수 ---
 def send_kakao_message(access_token: str, user_name: str):
     """지정된 사용자의 Access Token을 사용하여 카카오톡 메시지를 보냅니다."""
     url = "https://kapi.kakao.com/v2/api/talk/memo/default/send"
     headers = {"Authorization": f"Bearer {access_token}"}
+    
+    # 결과 페이지 링크
+    results_link = f"{BASE_URL}/results"
     
     # 메시지 템플릿: 사용자 이름을 포함하여 개인화
     template = {
@@ -20,16 +27,16 @@ def send_kakao_message(access_token: str, user_name: str):
             "description": "최신 경제 뉴스를 바탕으로 회원님만을 위한 분석이 업데이트되었습니다.",
             "image_url": "https://i.imgur.com/8i7b2dC.png", # 대표 이미지 URL
             "link": {
-                "web_url": "http://www.lifefinance.asia/results",
-                "mobile_web_url": "http://www.lifefinance.asia/results"
+                "web_url": results_link,
+                "mobile_web_url": results_link
             }
         },
         "buttons": [
             {
                 "title": "지금 바로 확인하기",
                 "link": {
-                    "web_url": "http://127.0.0.1:8000/results",
-                    "mobile_web_url": "http://127.0.0.1:8000/results"
+                    "web_url": results_link,
+                    "mobile_web_url": results_link
                 }
             }
         ]
@@ -46,11 +53,13 @@ def send_kakao_message(access_token: str, user_name: str):
 def send_email_notification(recipient_email: str, user_name: str):
     """지정된 이메일 주소로 알림 메일을 보냅니다."""
     # !!! 중요: 이 정보들을 실제 운영 환경에서는 .env 파일 등으로 안전하게 관리해야 합니다. !!!
-    # Gmail의 경우 '앱 비밀번호'를 생성하여 사용해야 합니다.
     SMTP_SERVER = "smtp.gmail.com"
     SMTP_PORT = 587
-    SENDER_EMAIL = "YOUR_SENDER_EMAIL@gmail.com"  # 보내는 사람 Gmail 주소
-    SENDER_PASSWORD = "YOUR_GMAIL_APP_PASSWORD" # Gmail 앱 비밀번호
+    SENDER_EMAIL = "YOUR_SENDER_EMAIL@gmail.com"
+    SENDER_PASSWORD = "YOUR_GMAIL_APP_PASSWORD"
+
+    # 결과 페이지 링크
+    results_link = f"{BASE_URL}/results"
 
     # 이메일 내용 구성
     subject = f"📈 {user_name}님, KB AI Navigator 맞춤 리포트가 도착했습니다."
@@ -60,7 +69,7 @@ def send_email_notification(recipient_email: str, user_name: str):
         <h2>{user_name}님, 안녕하세요!</h2>
         <p>최신 경제 뉴스와 회원님의 프로필을 반영한 새로운 맞춤 분석 리포트가 도착했습니다.</p>
         <p>아래 버튼을 클릭하여 지금 바로 확인해보세요.</p>
-        <a href="http://www.lifefinance.asia/results" style="display: inline-block; padding: 12px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 8px; font-size: 16px;">내 리포트 확인하기</a>
+        <a href="{results_link}" style="display: inline-block; padding: 12px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 8px; font-size: 16px;">내 리포트 확인하기</a>
         <p style="margin-top: 20px; font-size: 12px; color: #888;">본 메일은 KB AI Navigator 서비스 알림 메일입니다.</p>
     </body>
     </html>
