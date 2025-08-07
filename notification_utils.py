@@ -20,8 +20,8 @@ def send_kakao_message(access_token: str, user_name: str):
             "description": "최신 경제 뉴스를 바탕으로 회원님만을 위한 분석이 업데이트되었습니다.",
             "image_url": "https://i.imgur.com/8i7b2dC.png", # 대표 이미지 URL
             "link": {
-                "web_url": "http://127.0.0.1:8000/results",
-                "mobile_web_url": "http://127.0.0.1:8000/results"
+                "web_url": "http://www.lifefinance.asia/results",
+                "mobile_web_url": "http://www.lifefinance.asia/results"
             }
         },
         "buttons": [
@@ -60,7 +60,7 @@ def send_email_notification(recipient_email: str, user_name: str):
         <h2>{user_name}님, 안녕하세요!</h2>
         <p>최신 경제 뉴스와 회원님의 프로필을 반영한 새로운 맞춤 분석 리포트가 도착했습니다.</p>
         <p>아래 버튼을 클릭하여 지금 바로 확인해보세요.</p>
-        <a href="http://127.0.0.1:8000/results" style="display: inline-block; padding: 12px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 8px; font-size: 16px;">내 리포트 확인하기</a>
+        <a href="http://www.lifefinance.asia/results" style="display: inline-block; padding: 12px 20px; background-color: #007bff; color: white; text-decoration: none; border-radius: 8px; font-size: 16px;">내 리포트 확인하기</a>
         <p style="margin-top: 20px; font-size: 12px; color: #888;">본 메일은 KB AI Navigator 서비스 알림 메일입니다.</p>
     </body>
     </html>

@@ -17,7 +17,7 @@ from .auth_utils import (
 # --- 카카오 로그인 설정 ---
 # !!! 중요: 이 값들을 카카오 개발자 사이트에서 발급받은 값으로 변경해야 합니다. !!!
 KAKAO_REST_API_KEY = "2e4c8e208e182e59879c9c181bfc7c94" # 예: "a1b2c3d4e5f6..."
-KAKAO_REDIRECT_URI = "http://127.0.0.1:8000/auth/kakao/callback"
+KAKAO_REDIRECT_URI = "http://www.lifefinance.asia/auth/kakao/callback"
 
 # --- 라우터 및 템플릿 설정 ---
 router = APIRouter()
