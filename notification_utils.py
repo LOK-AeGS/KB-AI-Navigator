@@ -57,8 +57,8 @@ def send_email_notification(recipient_email: str, user_name: str):
     # !!! 중요: 이 정보들을 실제 운영 환경에서는 .env 파일 등으로 안전하게 관리해야 합니다. !!!
     SMTP_SERVER = "smtp.gmail.com"
     SMTP_PORT = 587
-    SENDER_EMAIL = "YOUR_SENDER_EMAIL@gmail.com"
-    SENDER_PASSWORD = "YOUR_GMAIL_APP_PASSWORD"
+    SENDER_EMAIL = "kbainavigator@gmail.com"
+    SENDER_PASSWORD = "ppis linf qwet nhlb"
 
     # 결과 페이지 링크
     results_link = f"{BASE_URL}/results"
