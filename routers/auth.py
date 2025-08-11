@@ -16,7 +16,7 @@ from .auth_utils import (
 )
 
 # --- 카카오 로그인 설정 ---
-KAKAO_REST_API_KEY = "YOUR_KAKAO_REST_API_KEY"
+KAKAO_REST_API_KEY = "2e4c8e208e182e59879c9c181bfc7c94"
 KAKAO_REDIRECT_URI = "http://www.lifefinance.asia/auth/kakao/callback"
 
 # --- 라우터 및 템플릿 설정 ---
