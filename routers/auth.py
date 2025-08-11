@@ -63,7 +63,7 @@ async def handle_login(
 # --- 카카오 로그인 ---
 @router.get("/login/kakao", tags=["Authentication"])
 async def kakao_login():
-    scope = "profile_nickname,account_email,talk_message,offline_access"
+    scope = "account_email,talk_message"
     kakao_auth_url = f"https://kauth.kakao.com/oauth/authorize?client_id={KAKAO_REST_API_KEY}&redirect_uri={KAKAO_REDIRECT_URI}&response_type=code&scope={scope}"
     return RedirectResponse(url=kakao_auth_url)
 
