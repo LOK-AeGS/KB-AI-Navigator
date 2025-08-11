@@ -49,8 +49,7 @@ def startup_db_client():
     scheduler.add_job(send_daily_notifications, 'cron', hour='8,18', minute='0')
     scheduler.start()
     
-    #테스트용
-    send_daily_notifications()
+
     print("🚀 통합 알림 스케줄러가 시작되었습니다. (매일 08:00, 18:00 실행)")
 
 @app.on_event("shutdown")
