@@ -1,22 +1,78 @@
-<!-- templates/results.html -->
 <!DOCTYPE html>
 <html lang="ko">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>경제 상담 결과</title>
+    <title>경제 상담 결과 - KB AI Navigator</title>
     <style>
+        :root {
+            --kb-yellow: #FFBB00;
+            --primary-blue: #007bff;
+            --text-primary: #212529;
+            --text-secondary: #6c757d;
+            --bg-light: #f8f9fa;
+            --border-color: #dee2e6;
+        }
+
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-            background-color: #f8f9fa;
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: var(--bg-light);
             margin: 0;
             padding: 20px;
+            color: var(--text-primary);
+        }
+
+        #preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #ffffff;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #preloader .spinner {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid var(--kb-yellow);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+
+        #preloader p {
+            margin-top: 20px;
+            font-size: 1.2em;
+            font-weight: 600;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
 
         .container {
-            max-width: 1000px;
+            max-width: 900px;
             margin: 0 auto;
+            display: none;
+            /* 초기에 숨김 */
+        }
+
+        .container.loaded {
+            display: block;
         }
 
         .page-header {
@@ -24,11 +80,12 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
+            padding: 0 10px;
         }
 
         .page-header h2 {
             font-size: 1.8em;
-            color: #343a40;
+            font-weight: 700;
         }
 
         .header-right {
@@ -39,82 +96,69 @@
 
         .user-info {
             font-size: 1em;
-            color: #6c757d;
+            color: var(--text-secondary);
         }
 
         .edit-btn {
             text-decoration: none;
-            background-color: #f1f3f5;
-            color: #495057;
+            background-color: #fff;
+            color: var(--text-primary);
             padding: 8px 15px;
             border-radius: 8px;
             font-weight: 600;
             font-size: 0.9em;
-            border: 1px solid #dee2e6;
-            transition: background-color 0.2s;
-        }
-
-        .edit-btn:hover {
-            background-color: #e9ecef;
+            border: 1px solid var(--border-color);
         }
 
         .card {
             background-color: #fff;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            border-radius: 16px;
+            box-shadow: 0 4px 25px rgba(0, 0, 0, 0.07);
             padding: 30px;
             margin-bottom: 25px;
         }
 
         .card h3 {
             font-size: 1.4em;
-            color: #495057;
+            font-weight: 700;
             margin-top: 0;
-            margin-bottom: 20px;
-        }
-
-        .card .card-subtitle {
-            font-size: 1em;
-            color: #6c757d;
-            margin-top: -15px;
             margin-bottom: 25px;
         }
 
         .summary-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             gap: 20px;
-        }
-
-        .summary-item {
-            text-align: center;
         }
 
         .summary-item .label {
             font-size: 0.9em;
-            color: #6c757d;
-            margin-bottom: 5px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            display: block;
         }
 
         .summary-item .value {
             font-size: 1.1em;
             font-weight: 600;
-            color: #343a40;
+            line-height: 1.5;
         }
 
         .timeline {
             position: relative;
-            padding-left: 30px;
+            padding-left: 15px;
         }
 
         .timeline-item {
             position: relative;
-            padding-bottom: 20px;
+            padding-bottom: 25px;
+            padding-left: 30px;
             border-left: 2px solid #e9ecef;
         }
 
         .timeline-item:last-child {
             border-left: none;
+            padding-bottom: 0;
         }
 
         .timeline-icon {
@@ -124,15 +168,13 @@
             width: 20px;
             height: 20px;
             border-radius: 50%;
-            background-color: #e9ecef;
+            background-color: #fff;
+            border: 2px solid #e9ecef;
         }
 
         .timeline-item.active .timeline-icon {
-            background-color: #007bff;
-        }
-
-        .timeline-content {
-            padding-left: 20px;
+            border-color: var(--primary-blue);
+            background-color: var(--primary-blue);
         }
 
         .timeline-header {
@@ -144,150 +186,207 @@
         .timeline-header h4 {
             margin: 0;
             font-size: 1.2em;
+            font-weight: 600;
         }
 
         .timeline-header .status {
             margin-left: 10px;
             font-size: 0.8em;
-            padding: 3px 8px;
+            padding: 4px 10px;
             border-radius: 12px;
-            color: #fff;
+            font-weight: bold;
         }
 
         .status-completed {
-            background-color: #6c757d;
+            background-color: #e9ecef;
+            color: var(--text-secondary);
         }
 
         .status-inprogress {
-            background-color: #28a745;
+            background-color: #20c997;
+            color: #fff;
         }
 
         .status-planned {
-            background-color: #007bff;
+            background-color: #e7f1ff;
+            color: var(--primary-blue);
+        }
+
+        .timeline-tasks {
+            list-style-type: none;
+            padding-left: 0;
         }
 
         .timeline-tasks li {
-            margin-bottom: 5px;
+            margin-bottom: 8px;
             color: #495057;
+            line-height: 1.6;
+            position: relative;
+            padding-left: 20px;
         }
 
-        .milestone-note {
-            background-color: #e7f1ff;
-            border-radius: 8px;
-            padding: 10px;
-            margin-top: 15px;
-            font-size: 0.9em;
-            color: #0056b3;
+        .timeline-tasks li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #20c997;
+            font-weight: bold;
         }
 
         .article-list .article-item {
-            background-color: #fff;
-            border: 1px solid #e9ecef;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 15px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            border-bottom: 1px solid var(--border-color);
+            padding: 20px 0;
+        }
+
+        .article-list .article-item:last-child {
+            border-bottom: none;
         }
 
         .article-item h4 {
-            margin: 0 0 15px 0;
-            font-size: 1.2em;
-            color: #343a40;
+            margin: 0 0 10px 0;
+            font-size: 1.15em;
+            font-weight: 600;
         }
 
         .article-item p {
-            margin: 0 0 10px 0;
-            color: #6c757d;
+            margin: 0;
+            color: var(--text-secondary);
             line-height: 1.6;
         }
 
         .article-item .label {
             font-weight: 600;
-            color: #007bff;
+            color: var(--primary-blue);
         }
     </style>
 </head>
 
 <body>
+    <div id="preloader">
+        <div class="spinner"></div>
+        <p>AI가 맞춤 리포트를 분석 중입니다...</p>
+    </div>
+
     {% include 'header.html' %}
     <div class="container">
+        <!-- 페이지 헤더와 카드들의 뼈대만  -->
         <div class="page-header">
             <h2>경제 상담 결과</h2>
             <div class="header-right">
                 <a href="/survey/edit" class="edit-btn">다시 입력</a>
-                <span class="user-info">{{ user_profile.age }}세 • {{ user_profile.occupation }} • {{
-                    user_profile.residence }}</span>
+                <span id="user-info" class="user-info"></span>
             </div>
         </div>
-
-        <div class="card">
-            <h3>상담 요약</h3>
-            <div class="summary-grid">
-                <div class="summary-item">
-                    <div class="label">투자 성향</div>
-                    <div class="value">{{ user_profile.investment_style }}</div>
-                </div>
-                <div class="summary-item">
-                    <div class="label">월 수익</div>
-                    <div class="value">{{ user_profile.monthly_income }}만원</div>
-                </div>
-                <div class="summary-item">
-                    <div class="label">부양가족</div>
-                    <div class="value">{{ user_profile.dependents }}명</div>
-                </div>
-                <div class="summary-item">
-                    <div class="label">목표</div>
-                    <div class="value">{{ user_profile.financial_goal | join(', ') }}</div>
-                </div>
-            </div>
-        </div>
-
-        <div class="card">
-            <h3>생애주기별 경제 계획</h3>
-            <div class="timeline">
-                {% for plan in lifecycle_plans %}
-                <div class="timeline-item {% if plan.status == '진행중' %}active{% endif %}">
-                    <div class="timeline-icon"></div>
-                    <div class="timeline-content">
-                        <div class="timeline-header">
-                            <h4>{{ plan.age_group }}</h4>
-                            <span class="status 
-                                {% if plan.status == '완료' %}status-completed
-                                {% elif plan.status == '진행중' %}status-inprogress
-                                {% else %}status-planned{% endif %}">{{ plan.status }}</span>
-                        </div>
-                        <ul class="timeline-tasks">
-                            {% for task in plan.tasks %}
-                            <li>{{ task }}</li>
-                            {% endfor %}
-                        </ul>
-                        {% if plan.milestone_age %}
-                        <div class="milestone-note">💡 {{ plan.milestone_age }}에 집중해야 할 핵심 과제들입니다.</div>
-                        {% endif %}
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-
-        <!-- 현재 단계 맞춤 투자 가이드 섹션 삭제됨 -->
-
-        <div class="card">
-            <h3>맞춤 경제 기사 요약</h3>
-            <p class="card-subtitle">회원님의 프로필을 바탕으로 선별된 경제 뉴스입니다.</p>
-            <div class="article-list">
-                {% for article in personalized_articles %}
-                <div class="article-item">
-                    <h4>{{ article.title }}</h4>
-                    <p><span class="label">[요약]</span> {{ article.summary }}</p>
-                    <p><span class="label">[추천 행동]</span> {{ article.recommendation }}</p>
-                </div>
-                {% else %}
-                <p>현재 페르소나에 맞는 맞춤 기사가 없습니다.</p>
-                {% endfor %}
-            </div>
-        </div>
+        <div class="card" id="summary-card"></div>
+        <div class="card" id="lifecycle-card"></div>
+        <div class="card" id="articles-card"></div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async function () {
+            const preloader = document.getElementById('preloader');
+            const container = document.querySelector('.container');
+
+            try {
+                // 페이지 로드 후 즉시 API로 데이터를 요청합니다.
+                const response = await fetch('/api/results-data');
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    // 404 에러(프로필 없음)인 경우, 설문조사 페이지로 보냅니다.
+                    if (response.status === 404) {
+                        window.location.href = '/survey';
+                        return;
+                    }
+                    throw new Error(errorData.detail || '데이터를 불러오는 데 실패했습니다.');
+                }
+                const data = await response.json();
+
+                // 받아온 데이터로 페이지 내용을 동적으로 채웁니다.
+                populatePage(data);
+
+                // 프리로더를 숨기고, 콘텐츠를 보여줍니다.
+                preloader.style.display = 'none';
+                container.classList.add('loaded');
+
+            } catch (error) {
+                console.error(error);
+                preloader.innerHTML = `<p style="color: red;">${error.message}</p>`;
+            }
+        });
+
+        function populatePage(data) {
+            const { user_profile, lifecycle_plans, personalized_articles } = data;
+
+            // 1. 헤더 정보 채우기
+            document.getElementById('user-info').textContent = `${user_profile.age}세 • ${user_profile.occupation} • ${user_profile.residence}`;
+
+            // 2. 상담 요약 카드 채우기
+            const summaryCard = document.getElementById('summary-card');
+
+            // --- 핵심 수정: financial_goal이 배열인지 확인하고 처리 ---
+            let goalText = '';
+            if (Array.isArray(user_profile.financial_goal)) {
+                goalText = user_profile.financial_goal.join(', ');
+            } else {
+                goalText = user_profile.financial_goal; // 배열이 아니면(문자열이면) 그대로 사용
+            }
+
+            summaryCard.innerHTML = `
+                <h3>상담 요약</h3>
+                <div class="summary-grid">
+                    <div class="summary-item"><div class="label">투자 성향</div><div class="value">${user_profile.investment_style}</div></div>
+                    <div class="summary-item"><div class="label">월 수익</div><div class="value">${user_profile.monthly_income}만원</div></div>
+                    <div class="summary-item"><div class="label">부양가족</div><div class="value">${user_profile.dependents}명</div></div>
+                    <div class="summary-item"><div class="label">목표</div><div class="value">${goalText}</div></div>
+                </div>
+            `;
+
+            // 3. 생애주기 계획 카드 채우기
+            const lifecycleCard = document.getElementById('lifecycle-card');
+            let lifecycleHtml = '<h3>생애주기별 경제 계획</h3><div class="timeline">';
+            if (lifecycle_plans && lifecycle_plans.length > 0) {
+                lifecycle_plans.forEach(plan => {
+                    const statusClass = plan.status === '완료' ? 'status-completed' : plan.status === '진행중' ? 'status-inprogress' : 'status-planned';
+                    const activeClass = plan.status === '진행중' ? 'active' : '';
+                    const tasksHtml = plan.tasks.map(task => `<li>${task.replace(/\*/g, '')}</li>`).join('');
+                    lifecycleHtml += `
+                        <div class="timeline-item ${activeClass}">
+                            <div class="timeline-icon"></div>
+                            <div class="timeline-content">
+                                <div class="timeline-header">
+                                    <h4>${plan.age_group}</h4>
+                                    <span class="status ${statusClass}">${plan.status}</span>
+                                </div>
+                                <ul class="timeline-tasks">${tasksHtml}</ul>
+                            </div>
+                        </div>`;
+                });
+            } else {
+                lifecycleHtml += '<p>생애주기별 경제 계획을 불러오는 데 실패했습니다.</p>';
+            }
+            lifecycleHtml += '</div>';
+            lifecycleCard.innerHTML = lifecycleHtml;
+
+            // 4. 맞춤 기사 요약 카드 채우기
+            const articlesCard = document.getElementById('articles-card');
+            let articlesHtml = '<h3>맞춤 경제 기사 요약</h3><div class="article-list">';
+            if (personalized_articles && personalized_articles.length > 0) {
+                personalized_articles.forEach(article => {
+                    articlesHtml += `
+                        <div class="article-item">
+                            <h4>${article.title}</h4>
+                            <p><span class="label">[요약]</span> ${article.summary.replace(/\*/g, '')}</p>
+                            <p><span class="label">[추천 행동]</span> ${article.recommendation.replace(/\*/g, '')}</p>
+                        </div>`;
+                });
+            } else {
+                articlesHtml += '<p>현재 페르소나에 맞는 맞춤 기사가 없습니다.</p>';
+            }
+            articlesHtml += '</div>';
+            articlesCard.innerHTML = articlesHtml;
+        }
+    </script>
 </body>
 
 </html>

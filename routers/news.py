@@ -1,17 +1,24 @@
-# routers/news.py
 
-from fastapi import APIRouter, Request, Depends
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi import APIRouter, Request, Depends, HTTPException, status
+from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
-from typing import List
+from typing import List, Dict, Optional
 from pymongo.database import Database
 import numpy as np
+import requests
+import json
+import re
 
-# 'auth_utils'를 같은 폴더(.)에서 가져오도록 수정
+# auth_utils에서 현재 로그인된 사용자를 확인하는 함수를 가져옵니다.
 from .auth_utils import get_current_user
 
-# (기존 페르소나 매칭 함수 및 Pydantic 모델은 그대로 유지)
+# --- Pydantic 데이터 모델 정의 ---
+class AnalysisResultItem(BaseModel):
+    summary: str
+    recommendation: str
+
+# --- Helper Function: 페르소나 매칭 ---
 def get_best_fit_persona(user_profile: dict) -> str:
     user_age = user_profile.get('age', 0)
     user_occupation = user_profile.get('occupation', '')
@@ -37,15 +44,32 @@ def get_best_fit_persona(user_profile: dict) -> str:
     best_persona = max(scores, key=scores.get)
     return best_persona
 
-def calculate_lifecycle_status(user_age: int, plans: List[dict]) -> List[dict]:
-    age_map = { "20대 초반": (20, 24), "20대 후반": (25, 29), "30대 초반": (30, 34), "30대 후반": (35, 39), "40대 초반": (40, 44), "40대 후반": (45, 49), "50대 이상": (50, 100) }
-    for plan in plans:
-        min_age, max_age = age_map.get(plan['age_group'], (0, 0))
-        if user_age > max_age: plan['status'] = '완료'
-        elif min_age <= user_age <= max_age: plan['status'] = '진행중'
-        else: plan['status'] = '예정'
-    return plans
-
+# --- Helper Function: 외부 API 호출 ---
+def fetch_and_process_life_plan(user_profile: dict) -> List[dict]:
+    api_url = "http://54.147.135.201:8000/generate-life-plan"
+    payload = user_profile.copy()
+    if '_id' in payload:
+        del payload['_id']
+    try:
+        print(f"외부 API 호출 시작: {api_url}")
+        response = requests.post(api_url, json=payload, timeout=120)
+        response.raise_for_status()
+        api_data = response.json()
+        
+        processed_plans = []
+        user_age = user_profile.get("age", 0)
+        for age_group_key, tasks in api_data.items():
+            plan = {"age_group": age_group_key, "tasks": tasks, "status": "예정"}
+            age_range = re.findall(r'\((\d+)-(\d+)세\)', age_group_key)
+            if age_range:
+                min_age, max_age = map(int, age_range[0])
+                if user_age > max_age: plan['status'] = '완료'
+                elif min_age <= user_age <= max_age: plan['status'] = '진행중'
+            processed_plans.append(plan)
+        return processed_plans
+    except requests.exceptions.RequestException as e:
+        print(f"외부 API 호출 중 오류 발생: {e}")
+        return []
 
 # --- 라우터 및 API 정의 ---
 router = APIRouter()
@@ -54,23 +78,42 @@ templates = Jinja2Templates(directory="templates")
 def get_db(request: Request) -> Database:
     return request.app.state.db
 
+# --- 1. 결과 페이지 UI 뼈대를 보여주는 경로 ---
 @router.get("/results", response_class=HTMLResponse, tags=["Results Dashboard"])
-async def show_results_dashboard(
-    request: Request, 
+async def show_results_page(
+    request: Request,
+    current_user: str = Depends(get_current_user)
+):
+    """
+    데이터 없이 HTML 뼈대와 프리로더만 먼저 렌더링합니다.
+    실제 데이터는 페이지 로드 후 JavaScript가 /api/results-data로 요청합니다.
+    """
+    if not current_user:
+        return RedirectResponse(url="/login")
+    return templates.TemplateResponse("results.html", {"request": request, "current_user": current_user})
+
+# --- 2. 실제 데이터를 제공하는 API 엔드포인트 (신규) ---
+@router.get("/api/results-data", response_class=JSONResponse, tags=["Results API"])
+async def get_results_data(
     db: Database = Depends(get_db),
     current_user: str = Depends(get_current_user)
 ):
+    """
+    로그인된 사용자의 모든 결과 데이터를 계산하여 JSON으로 반환합니다.
+    """
     if not current_user:
-        return RedirectResponse(url="/login")
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="인증되지 않은 사용자입니다.")
 
     try:
         user_profile = db.user_profiles.find_one({"user_id": current_user})
         if not user_profile:
-            return RedirectResponse(url="/survey")
+            # 프로필이 없으면 설문조사 페이지로 보내도록 프론트엔드에 신호를 보낼 수 있습니다.
+            # 여기서는 에러를 발생시켜 프론트엔드에서 처리하도록 합니다.
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="설문조사 결과가 없습니다. 다시 작성해주세요.")
+        
+        user_profile['_id'] = str(user_profile['_id'])
 
-        lifecycle_plans_from_db = list(db.lifecycle_plans.find({}))
-        lifecycle_plans = calculate_lifecycle_status(user_profile.get('age', 0), lifecycle_plans_from_db)
-
+        lifecycle_plans = fetch_and_process_life_plan(user_profile)
         matched_persona_name = get_best_fit_persona(user_profile)
         all_articles_analysis = list(db.analysis_results.find({}))
         
@@ -80,20 +123,15 @@ async def show_results_dashboard(
             if persona_result:
                 personalized_articles.append({
                     "title": article.get("title", "제목 없음"),
-                    "summary": persona_result.get("summary", "요약 정보가 없습니다."),
-                    "recommendation": persona_result.get("recommendation", "추천 정보가 없습니다.")
+                    "summary": persona_result.get("summary", ""),
+                    "recommendation": persona_result.get("recommendation", "")
                 })
         
-        return templates.TemplateResponse(
-            "results.html", 
-            {
-                "request": request,
-                "current_user": current_user,
-                "user_profile": user_profile,
-                "lifecycle_plans": lifecycle_plans,
-                "personalized_articles": personalized_articles
-            }
-        )
+        return {
+            "user_profile": user_profile,
+            "lifecycle_plans": lifecycle_plans,
+            "personalized_articles": personalized_articles
+        }
     except Exception as e:
-        print(f"결과 페이지 로딩 중 오류 발생: {e}")
-        return templates.TemplateResponse("error.html", {"request": request, "current_user": current_user, "message": "결과 처리 중 오류 발생"})
+        print(f"API 데이터 생성 중 오류 발생: {e}")
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="데이터를 처리하는 중 서버 오류가 발생했습니다.")

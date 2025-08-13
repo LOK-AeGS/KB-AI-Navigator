@@ -1,4 +1,4 @@
-# routers/auth.py
+
 
 from fastapi import APIRouter, Request, Depends, Form, status
 from fastapi.responses import HTMLResponse, RedirectResponse
@@ -17,7 +17,8 @@ from .auth_utils import (
 
 # --- 카카오 로그인 설정 ---
 KAKAO_REST_API_KEY = "2e4c8e208e182e59879c9c181bfc7c94"
-KAKAO_REDIRECT_URI = "http://www.lifefinance.asia/auth/kakao/callback"
+KAKAO_REDIRECT_URI = "http://127.0.0.1:8000/auth/kakao/callback"
+# "http://www.lifefinance.asia/auth/kakao/callback"
 
 # --- 라우터 및 템플릿 설정 ---
 router = APIRouter()
@@ -118,11 +119,11 @@ async def handle_logout(
             try:
                 response = requests.post(kakao_logout_url, headers=headers)
                 if response.status_code == 200:
-                    print(f"✅ 사용자 '{current_user}'의 카카오 계정 로그아웃 성공.")
+                    print(f"사용자 '{current_user}'의 카카오 계정 로그아웃 성공.")
                 else:
-                    print(f"⚠️ 사용자 '{current_user}'의 카카오 계정 로그아웃 실패: {response.text}")
+                    print(f"사용자 '{current_user}'의 카카오 계정 로그아웃 실패: {response.text}")
             except Exception as e:
-                print(f"❌ 카카오 로그아웃 API 호출 중 오류 발생: {e}")
+                print(f"카카오 로그아웃 API 호출 중 오류 발생: {e}")
 
     response = RedirectResponse(url="/", status_code=status.HTTP_303_SEE_OTHER)
     response.delete_cookie(key="access_token")

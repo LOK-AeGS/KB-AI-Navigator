@@ -1,4 +1,4 @@
-# auth_utils.py
+
 
 from fastapi import Depends, HTTPException, status, Request
 from jose import JWTError, jwt
@@ -11,8 +11,7 @@ from typing import Optional
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # JWT(JSON Web Token) 설정
-# SECRET_KEY는 외부에 노출되면 안 되는 매우 중요한 값입니다.
-# 실제 운영 환경에서는 .env 파일이나 다른 보안 방법을 통해 관리해야 합니다.
+
 SECRET_KEY = "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60  # 토큰 유효 시간 (60분)
@@ -39,8 +38,8 @@ def create_access_token(data: dict):
 
 def get_current_user(request: Request) -> Optional[str]:
     """
-    요청에 포함된 쿠키에서 Access Token을 읽어 현재 로그인된 사용자의 ID(이메일)를 반환합니다.
-    로그인되지 않았거나 토큰이 유효하지 않으면 None을 반환합니다.
+    요청에 포함된 쿠키에서 Access Token을 읽어 현재 로그인된 사용자의 ID(이메일)를 반환.
+    로그인되지 않았거나 토큰이 유효하지 않으면 None을 반환.
     """
     token = request.cookies.get("access_token")
     if not token:

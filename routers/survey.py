@@ -1,4 +1,4 @@
-# routers/survey.py
+
 
 from fastapi import APIRouter, Request, Form, Depends, HTTPException, status
 from fastapi.responses import HTMLResponse, RedirectResponse
@@ -30,7 +30,7 @@ templates = Jinja2Templates(directory="templates")
 def get_db(request: Request) -> Database:
     return request.app.state.db
 
-# --- 라우트 정의 (수정됨) ---
+# --- 라우트 정의 ---
 @router.get("/", response_class=RedirectResponse, tags=["Entry Point"])
 async def root(current_user: Optional[str] = Depends(get_current_user)):
     """
@@ -40,7 +40,7 @@ async def root(current_user: Optional[str] = Depends(get_current_user)):
     """
     if current_user:
         return RedirectResponse(url="/results")
-    return RedirectResponse(url="/login") # <-- 이 부분을 /survey에서 /login으로 변경했습니다.
+    return RedirectResponse(url="/login") 
 
 @router.get("/survey", response_class=HTMLResponse, tags=["Survey UI"])
 async def show_new_survey_form(request: Request, db: Database = Depends(get_db), current_user: Optional[str] = Depends(get_current_user)):
