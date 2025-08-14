@@ -1,4 +1,4 @@
-# notification_utils.py
+
 
 import requests
 import json
@@ -47,9 +47,9 @@ def send_kakao_message(access_token: str, user_name: str):
     response = requests.post(url, headers=headers, data={"template_object": json.dumps(template)})
     
     if response.json().get('result_code') == 0:
-        print(f"✅ 카카오톡 피드 메시지 발송 성공: {user_name}님")
+        print(f"카카오톡 피드 메시지 발송 성공: {user_name}님")
     else:
-        print(f"❌ 카카오톡 피드 메시지 발송 실패: {user_name}님, 응답: {response.text}")
+        print(f"카카오톡 피드 메시지 발송 실패: {user_name}님, 응답: {response.text}")
 
 # --- 이메일 발송 함수 ---
 def send_email_notification(recipient_email: str, user_name: str):
@@ -89,6 +89,6 @@ def send_email_notification(recipient_email: str, user_name: str):
         server.login(SENDER_EMAIL, SENDER_PASSWORD)
         server.sendmail(SENDER_EMAIL, recipient_email, msg.as_string())
         server.quit()
-        print(f"✅ 이메일 발송 성공: {recipient_email}")
+        print(f"이메일 발송 성공: {recipient_email}")
     except Exception as e:
-        print(f"❌ 이메일 발송 실패: {recipient_email}, 오류: {e}")
+        print(f"이메일 발송 실패: {recipient_email}, 오류: {e}")

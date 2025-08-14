@@ -1,4 +1,4 @@
-# main.py
+
 
 import uvicorn
 from fastapi import FastAPI
@@ -16,7 +16,6 @@ db = client["finance_article"]
 # --- 통합 알림 발송 함수 ---
 def send_daily_notifications():
     """DB에서 모든 사용자를 조회하여 가입 방식에 따라 알림을 보냅니다."""
-    print("\n⏰ 스케줄러 실행: 일일 알림 발송 작업을 시작합니다.")
     all_users = list(db.users.find({}))
     
     for user in all_users:
@@ -30,18 +29,19 @@ def send_daily_notifications():
             send_kakao_message(user["kakao_access_token"], user_name)
         elif user.get("signup_method") == "email":
             send_email_notification(user_email, user_name)
+
     
-    print("✅ 일일 알림 발송 작업 완료.\n")
+    print(" 일일 알림 발송 작업 완료.\n")
 
 # --- FastAPI 앱 이벤트 핸들러 ---
 @app.on_event("startup")
 def startup_db_client():
     try:
         client.admin.command('ping')
-        print("✅ MongoDB에 성공적으로 연결되었습니다.")
+        print(" MongoDB에 성공적으로 연결되었습니다.")
         app.state.db = db
     except Exception as e:
-        print(f"❌ MongoDB 연결에 실패했습니다: {e}")
+        print(f" MongoDB 연결에 실패했습니다: {e}")
 
     # --- 스케줄러 시작 ---
     scheduler = BackgroundScheduler(timezone="Asia/Seoul")
@@ -49,13 +49,14 @@ def startup_db_client():
     scheduler.add_job(send_daily_notifications, 'cron', hour='8,18', minute='0')
     scheduler.start()
     
+    
 
-    print("🚀 통합 알림 스케줄러가 시작되었습니다. (매일 08:00, 18:00 실행)")
+
 
 @app.on_event("shutdown")
 def shutdown_db_client():
     client.close()
-    print("🔌 MongoDB 연결이 해제되었습니다.")
+    print(" MongoDB 연결이 해제되었습니다.")
 
 # --- 라우터 포함 ---
 app.include_router(auth.router)

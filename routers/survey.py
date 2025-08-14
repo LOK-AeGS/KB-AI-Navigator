@@ -99,5 +99,5 @@ async def submit_survey_form(
         upsert=True
     )
     
-    print(f"--- 👤 사용자 '{current_user}' 프로필 저장/업데이트 완료 ---")
+    
     return RedirectResponse(url="/results", status_code=303)
