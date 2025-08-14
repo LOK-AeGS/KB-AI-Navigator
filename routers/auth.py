@@ -57,8 +57,15 @@ async def handle_login(
     if not user or not verify_password(password, user["hashed_password"]):
         return templates.TemplateResponse("login.html", {"request": request, "error": "이메일 또는 비밀번호가 올바르지 않습니다."}, status_code=400)
     
+        # --- 핵심 수정: 로그인 성공 후 프로필 존재 여부 확인 ---
+    user_profile = db.user_profiles.find_one({"user_id": user["email"]})
+    
+    # 프로필이 있으면 /results로, 없으면 /survey로 리디렉션
+    redirect_url = "/results" if user_profile else "/survey"
+    print(redirect_url)
+
     access_token = create_access_token(data={"sub": user["email"]})
-    response = RedirectResponse(url="/results", status_code=status.HTTP_303_SEE_OTHER)
+    response = RedirectResponse(url=redirect_url, status_code=status.HTTP_303_SEE_OTHER)
     response.set_cookie(key="access_token", value=access_token, httponly=True)
     return response
 
