@@ -42,27 +42,12 @@
 ---
 
 
+https://github.com/user-attachments/assets/e886501a-1313-4cc5-a5de-1736bb683e9f
+
+
+
 
 ```
-📁 프로젝트 구조
-/KB-LIFE MAP
-|-- main.py                 # FastAPI 앱 실행 및 라우터 설정
-|-- /routers                # API 경로(라우트) 모듈
-|   |-- __init__.py
-|   |-- auth.py             # 인증 (로그인/회원가입) 관련
-|   |-- auth_utils.py       # 보안 (암호화/JWT) 관련 유틸리티
-|   |-- news.py             # 결과 페이지 관련
-|   |-- survey.py           # 설문조사 페이지 관련
-|-- /templates              # HTML 템플릿 파일
-|   |-- header.html
-|   |-- login.html
-|   |-- register.html
-|   |-- results.html
-|   |-- survey.html
-|-- notification_utils.py   # 알림 발송 유틸리티
-|-- .env                    # (직접 생성) 환경 변수 파일
-|-- .gitignore              # Git 추적 제외 파일 목록
-|-- README.md               # 프로젝트 설명 파일
-```
+
 
 
